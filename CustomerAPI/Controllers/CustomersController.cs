@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CustomerAPI.DbModels;
+using CustomerAPI.Services;
 
 namespace CustomerAPI.Controllers
 {
