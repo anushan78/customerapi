@@ -8,12 +8,18 @@ using CustomerAPI.DbModels;
 
 namespace CustomerAPI.Controllers
 {
+    /// <summary>
+    /// This defines API endpoints to manipulate customer details.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class CustomersController : ControllerBase
     {
         private readonly CustomerContext _customerContext;
 
+        /// <summary>
+        ///  Constructor to setup customet context
+        /// </summary>
         public CustomersController(CustomerContext context)
         {
             _customerContext = context;
