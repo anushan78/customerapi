@@ -3,43 +3,99 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using CustomerAPI.DbModels;
 
 namespace CustomerAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Customers : ControllerBase
+    public class CustomersController : ControllerBase
     {
-        // GET api/values
+        private readonly CustomerContext _customerContext;
+
+        public CustomersController(CustomerContext context)
+        {
+            _customerContext = context;
+        }
+
+        // GET api/customers
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public async Task<ActionResult<IEnumerable<Customer>>> GetAll()
         {
-            return new string[] { "value1", "value2" };
+            return await _customerContext.Customers.ToListAsync();
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Customer>> GetbyId(int id)
         {
-            return "value";
+            var customer = await _customerContext.Customers.Where(customerItem => customerItem.Id == id).FirstOrDefaultAsync();
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return customer;
         }
 
-        // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<Customer>> Create(Customer customer)
         {
+            _customerContext.Customers.Add(customer);
+            await _customerContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetbyId), new { id = customer.Id }, customer);
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, Customer customer)
         {
+            if (id != customer.Id)
+            {
+                return BadRequest();
+            }
+
+            _customerContext.Entry(customer).State = EntityState.Modified;
+            await _customerContext.SaveChangesAsync();
+
+            return NoContent();
         }
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
         {
+            var customer = await _customerContext.Customers.FindAsync(id);
+
+            if (customer == null)
+            {
+                return BadRequest();
+            }
+
+            _customerContext.Remove(customer);
+            await _customerContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
+        [HttpGet("{name}")]
+        public async Task<ActionResult<Customer>> Getbyname(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest();
+            }
+
+            var customer = await _customerContext.Customers
+                .Where(customerItem => $"{customerItem.FirstName} {customerItem.LastName}".IndexOf(name) >= 0).FirstOrDefaultAsync();
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return customer;
         }
     }
 }
