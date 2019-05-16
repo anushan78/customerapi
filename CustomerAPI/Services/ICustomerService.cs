@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using CustomerAPI.DbModels;
+using System.Collections.Generic;
 
 namespace CustomerAPI.Services
 {

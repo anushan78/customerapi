@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using CustomerAPI.DbModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace CustomerAPI
 {
