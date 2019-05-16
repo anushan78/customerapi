@@ -15,27 +15,28 @@ namespace CustomerAPI.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly CustomerContext _customerContext;
+        private readonly ICustomerService _customerService;
 
         /// <summary>
         ///  Constructor to setup customet context
         /// </summary>
-        public CustomersController(CustomerContext context)
+        public CustomersController(ICustomerService customerService)
         {
-            _customerContext = context;
+            _customerService = customerService;
         }
 
         // GET api/customers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetAll()
+        public ActionResult<IEnumerable<Customer>> GetAll()
         {
-            return await _customerContext.Customers.ToListAsync();
+            var customers = _customerService.GetAll();
+            return Ok(customers);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Customer>> GetbyId(int id)
+        public ActionResult<Customer> GetbyId(int id)
         {
-            var customer = await _customerContext.Customers.Where(customerItem => customerItem.Id == id).FirstOrDefaultAsync();
+            var customer = _customerService.GetbyId(id);
 
             if (customer == null)
             {
@@ -46,62 +47,58 @@ namespace CustomerAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Customer>> Create(Customer customer)
+        public ActionResult<Customer> Create(Customer customer)
         {
-            _customerContext.Customers.Add(customer);
-            await _customerContext.SaveChangesAsync();
+            _customerService.Create(customer);
 
             return CreatedAtAction(nameof(GetbyId), new { id = customer.Id }, customer);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, Customer customer)
+        public IActionResult Update(int id, Customer customer)
         {
             if (id != customer.Id)
             {
                 return BadRequest();
             }
 
-            _customerContext.Entry(customer).State = EntityState.Modified;
-            await _customerContext.SaveChangesAsync();
+            _customerService.Update(customer);
 
             return NoContent();
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        public IActionResult Delete(int id)
         {
-            var customer = await _customerContext.Customers.FindAsync(id);
+            var customer = _customerService.GetbyId(id);
 
             if (customer == null)
             {
                 return BadRequest();
             }
 
-            _customerContext.Remove(customer);
-            await _customerContext.SaveChangesAsync();
+            _customerService.Delete(id);
 
             return NoContent();
         }
 
 
         [HttpGet("{name}")]
-        public async Task<ActionResult<Customer>> Getbyname(string name)
+        public ActionResult<IEnumerable<Customer>> Getbyname(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 return BadRequest();
             }
 
-            var customer = await _customerContext.Customers
-                .Where(customerItem => $"{customerItem.FirstName} {customerItem.LastName}".IndexOf(name) >= 0).FirstOrDefaultAsync();
+            var customer = _customerService.GetByName(name);
 
             if (customer == null)
             {
                 return NotFound();
             }
 
-            return customer;
+            return Ok(customer);
         }
     }
 }

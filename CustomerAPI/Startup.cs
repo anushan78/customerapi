@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CustomerAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -32,6 +33,8 @@ namespace CustomerAPI
                 .AddDbContext<CustomerContext>((serviceProvider, options) =>
                     options.UseInMemoryDatabase("CustomerInMemoryDB")
                     .UseInternalServiceProvider(serviceProvider));
+
+            services.AddScoped<ICustomerService, CustomerService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
