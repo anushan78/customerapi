@@ -45,7 +45,7 @@ namespace CustomerAPI
             {
                 c.SwaggerDoc("v1", new Info
                 {
-                    Title = "About this",
+                    Title = "Customer API Documentation",
                     Version = "v1",
                 });
 

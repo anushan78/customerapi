@@ -111,7 +111,7 @@ namespace CustomerAPI.Controllers
         /// Returns list of customers by matching with the full name (first name and last name combined) with the specified name parameter.
         /// </summary>
         /// <param name="name">Name use to find the customers by first name and last name.</param>
-        /// <returns>400 badrequest response or 404 notfonund response or 200 ok response./returns>
+        /// <returns>400 badrequest response or 404 notfonund response or 200 ok response.</returns>
         [HttpGet("{name}")]
         public ActionResult<IEnumerable<Customer>> Getbyname(string name)
         {
