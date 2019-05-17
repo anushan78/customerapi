@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Xunit;
-using System.Linq;
-using CustomerAPI.Controllers;
-using CustomerAPI.Services;
+﻿using CustomerAPI.Controllers;
 using CustomerAPI.DbModels;
+using CustomerAPI.Services;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Xunit;
 
 namespace CustomerAPI.Test
 {
@@ -70,7 +70,7 @@ namespace CustomerAPI.Test
 
             var badResponse = _controller.Create(dateOfBirthMissingCustomer);
 
-            Assert.IsType<BadRequestObjectResult>(badResponse);
+            Assert.IsType<BadRequestObjectResult>(badResponse.Result);
         }
 
 
@@ -86,12 +86,12 @@ namespace CustomerAPI.Test
 
             var createdResponse = _controller.Create(customer);
 
-            Assert.IsType<CreatedAtActionResult>(createdResponse);
+            Assert.IsType<CreatedAtActionResult>(createdResponse.Result);
         }
 
 
         [Fact]
-        public void Add_ValidCustomerPassed_ReturnedResponseHasCreatedItem()
+        public void Create_ValidCustomerPassed_ReturnedResponseHasCreatedItem()
         {
             var testCustomer = new Customer()
             {
@@ -100,11 +100,10 @@ namespace CustomerAPI.Test
                 DateOfBirth = DateTime.Parse("03/04/1988")
             };
 
-            var createdResponse = _controller.Create(testCustomer) as ActionResult<Customer>;
-            var item = createdResponse.Value as Customer;
+            var createdResponse = _controller.Create(testCustomer);
 
-            Assert.IsType<Customer>(item);
-            Assert.Equal("Mellissa", item.FirstName);
+            Assert.IsType<CreatedAtActionResult>(createdResponse.Result);
+            Assert.NotNull(_controller.GetbyName("Melissa"));
         }
 
         [Fact]
@@ -113,7 +112,7 @@ namespace CustomerAPI.Test
             var notExistingId = 45;
             var badResponse = _controller.Delete(notExistingId);
 
-            Assert.IsType<NotFoundResult>(badResponse);
+            Assert.IsType<BadRequestResult>(badResponse);
         }
 
         [Fact]
@@ -123,7 +122,7 @@ namespace CustomerAPI.Test
             var okResponse = _controller.Delete(existingId);
 
             // Assert
-            Assert.IsType<OkResult>(okResponse);
+            Assert.IsType<NoContentResult>(okResponse);
         }
 
         [Fact]

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using CustomerAPI.DbModels;
+using CustomerAPI.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CustomerAPI.DbModels;
-using CustomerAPI.Services;
 
 namespace CustomerAPI.Test
 {
@@ -23,6 +22,7 @@ namespace CustomerAPI.Test
 
         public void Create(Customer customer)
         {
+            customer.Id = _customers.Max(cust => cust.Id) + 1;
             _customers.Add(customer);
         }
 

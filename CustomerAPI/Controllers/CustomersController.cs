@@ -48,7 +48,7 @@ namespace CustomerAPI.Controllers
                 return NotFound();
             }
 
-            return customer;
+            return Ok(customer);
         }
 
         /// <summary>
@@ -59,6 +59,11 @@ namespace CustomerAPI.Controllers
         [HttpPost]
         public ActionResult<Customer> Create(Customer customer)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             _customerService.Create(customer);
 
             return CreatedAtAction(nameof(GetbyId), new { id = customer.Id }, customer);
@@ -71,9 +76,9 @@ namespace CustomerAPI.Controllers
         /// <param name="customer">Customer entry populated with the required details to be updated</param>
         /// <returns>Response with status code 400- bad request for invalid object; Response with 204 no content status code otherwise.</returns>
         [HttpPut("{id:int}")]
-        public IActionResult Update(int id, Customer customer)
+        public ActionResult Update(int id, Customer customer)
         {
-            if (id != customer.Id)
+            if (!ModelState.IsValid || id != customer.Id)
             {
                 return BadRequest();
             }
@@ -89,7 +94,7 @@ namespace CustomerAPI.Controllers
         /// <param name="id">Customer's id to be removed</param>
         /// <returns>Response with status code 400- bad request for invalid object; Response with 204 no content status code otherwise.</returns>
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public ActionResult Delete(int id)
         {
             var customer = _customerService.GetbyId(id);
 
@@ -109,7 +114,7 @@ namespace CustomerAPI.Controllers
         /// <param name="name">Name use to find the customers by first name and last name.</param>
         /// <returns>400 badrequest response or 404 notfonund response or 200 ok response.</returns>
         [HttpGet("{name}")]
-        public ActionResult<IEnumerable<Customer>> Getbyname(string name)
+        public ActionResult<IEnumerable<Customer>> GetbyName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
