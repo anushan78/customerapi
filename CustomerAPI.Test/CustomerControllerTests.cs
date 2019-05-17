@@ -103,11 +103,40 @@ namespace CustomerAPI.Test
             var createdResponse = _controller.Create(testCustomer);
 
             Assert.IsType<CreatedAtActionResult>(createdResponse.Result);
-            Assert.NotNull(_controller.GetbyName("Melissa"));
+            Assert.NotNull(_controller.GetByName("Melissa"));
         }
 
         [Fact]
-        public void Remove_NotExistingIdPassed_ReturnsNotFoundResponse()
+        public void GetByName_PartialNamePassed_ReturnsRightItem()
+        {
+            var partialName = "ndy";
+            var lastName = "Ten";
+            var okResult = _controller.GetByName(partialName).Result as OkObjectResult;
+
+            Assert.IsAssignableFrom<IEnumerable<Customer>>(okResult.Value);
+            Assert.True(((List<Customer>)okResult.Value).Exists(cust => cust.LastName == lastName));
+        }
+
+        [Fact]
+        public void GetByName_UnknownPartialNamePassed_ReturnsNotFoundResult()
+        {
+            var unKnownName = "xyz";
+            var notFoundResult = _controller.GetByName(unKnownName);
+
+            Assert.IsType<NotFoundResult>(notFoundResult.Result);
+        }
+
+        [Fact]
+        public void GetByName_InvalidNameParameterPassed_ReturnsBadRequestResult()
+        {
+            var invalidName = "";
+            var notFoundResult = _controller.GetByName(invalidName);
+
+            Assert.IsType<BadRequestResult>(notFoundResult.Result);
+        }
+
+        [Fact]
+        public void Remove_NotExistingIdPassed_ReturnsBadRequestResult()
         {
             var notExistingId = 45;
             var badResponse = _controller.Delete(notExistingId);
@@ -116,7 +145,7 @@ namespace CustomerAPI.Test
         }
 
         [Fact]
-        public void Remove_ExistingIdPassed_ReturnsOkResult()
+        public void Remove_ExistingIdPassed_ReturnsNoContentResult()
         {
             var existingId = 1;
             var okResponse = _controller.Delete(existingId);
@@ -132,6 +161,25 @@ namespace CustomerAPI.Test
             var okResponse = _controller.Delete(existingId);
 
             Assert.Equal(2, _service.GetAll().Count());
+        }
+
+        [Fact]
+        public void Update_ValidCustomerPassed_ReturnedResponseHasCreatedItem()
+        {
+            var id = 1;
+            var testCustomer = new Customer()
+            {
+                Id = 1,
+                FirstName = "Andy",
+                LastName = "Ten",
+                DateOfBirth = DateTime.Parse("03/04/1980")
+            };
+
+            var updatedResponse = _controller.Update(id, testCustomer);
+            Assert.IsType<NoContentResult>(updatedResponse);
+
+            var updatedResult = _controller.GetByName("Andy").Result as OkObjectResult;
+            Assert.True(((List<Customer>)updatedResult.Value).Exists(cust => cust.DateOfBirth == DateTime.Parse("03/04/1980") && cust.LastName == "Ten"));
         }
     }
 }

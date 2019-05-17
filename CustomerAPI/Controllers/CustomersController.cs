@@ -2,6 +2,7 @@
 using CustomerAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CustomerAPI.Controllers
 {
@@ -114,7 +115,7 @@ namespace CustomerAPI.Controllers
         /// <param name="name">Name use to find the customers by first name and last name.</param>
         /// <returns>400 badrequest response or 404 notfonund response or 200 ok response.</returns>
         [HttpGet("{name}")]
-        public ActionResult<IEnumerable<Customer>> GetbyName(string name)
+        public ActionResult<IEnumerable<Customer>> GetByName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -123,7 +124,7 @@ namespace CustomerAPI.Controllers
 
             var customer = _customerService.GetByName(name);
 
-            if (customer == null)
+            if (customer == null || customer.Count() == 0)
             {
                 return NotFound();
             }
